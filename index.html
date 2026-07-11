@@ -101,7 +101,6 @@
   .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 56px; padding-top: 4px; }
   .plate-outer { position: relative; width: 220px; height: 220px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid var(--border); overflow: hidden; background: var(--surface-2); }
   .plate-zone { position: absolute; display: flex; align-items: center; justify-content: center; box-sizing: border-box; border: 1px dashed var(--border); }
-  .plate-zone-label { position: absolute; top: 6px; left: 4px; right: 4px; text-align: center; font-size: 10px; color: var(--text-muted); line-height: 1.2; pointer-events: none; }
   .carb-item-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; }
   .carb-tag { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
   input.num-input { font-family: inherit; font-size: 16px; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; width: 110px; background: var(--surface-1); color: var(--text-primary); }
@@ -302,7 +301,7 @@
     {
       type: "plate",
       q: "Build a plate using the plate method.",
-      instructions: "Drag each food onto the right portion of the plate.",
+      instructions: "The plate is split into a half and two quarters, no labels. Drag each food onto the portion size you think it belongs on.",
       icon: "ti-chart-pie", color: "accent",
       zones: [
         { id: "veg", label: "Vegetables — half plate", style: "top:0; left:0; width:100%; height:50%;" },
@@ -599,10 +598,6 @@
       box.className = 'plate-zone';
       box.dataset.zone = z.id;
       box.setAttribute('style', box.getAttribute('style') ? box.getAttribute('style') + z.style : z.style);
-      var label = document.createElement('span');
-      label.className = 'plate-zone-label';
-      label.textContent = z.label;
-      box.appendChild(label);
       plateOuter.appendChild(box);
       zoneEls[z.id] = box;
     });
