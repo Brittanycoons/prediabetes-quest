@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Type 2 diabetes quest</title>
+<title>Type 2 diabetes diet quest</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <style>
@@ -123,8 +123,8 @@
         <rect x="-2" y="-18" width="4" height="12" rx="2" fill="var(--text-secondary)"></rect>
       </g>
     </svg>
-    <h1>Type 2 diabetes quest</h1>
-    <p class="subtitle">A quick knowledge quiz and daily habit tracker, based on UpToDate's patient education guide.</p>
+    <h1>Type 2 diabetes diet quest</h1>
+    <p class="subtitle">A quick knowledge quiz and daily habit tracker on eating well with type 2 diabetes, based on UpToDate's patient education guides.</p>
   </header>
 
   <div class="card">
@@ -174,8 +174,8 @@
   </div>
 
   <footer>
-    Based on UpToDate's <em>Patient education: Type 2 diabetes in adults (The Basics)</em>.
-    This app is for education only, not medical advice — talk to your doctor about your personal risk.
+    Based on UpToDate's <em>Patient education: Diabetes and diet (The Basics)</em> and <em>Type 2 diabetes and diet (Beyond the Basics)</em>.
+    This app is for education only, not medical advice — talk to your doctor or a dietitian about your personal plan.
   </footer>
 </div>
 
@@ -183,99 +183,99 @@
 (function() {
   var questions = [
     {
-      q: "What actually happens in type 2 diabetes?",
+      q: "Why does diet matter if you have type 2 diabetes?",
       options: [
-        "The pancreas makes little or no insulin at all",
-        "The pancreas still makes some insulin, but cells stop responding to it normally",
-        "The stomach stops digesting sugar",
-        "The liver stops making insulin"
+        "It has no real effect on blood sugar",
+        "It helps keep blood sugar at goal and lowers the risk of long-term problems like heart or kidney disease",
+        "It only matters for people who take insulin",
+        "It's only about losing weight, not blood sugar"
       ],
       correct: 1,
-      explain: "In type 2 diabetes, the pancreas still makes some insulin, but the body's cells stop responding normally — eventually the pancreas can't keep up.",
+      explain: "Managing your diet helps keep blood sugar at goal and lowers the risk of long-term problems like heart or kidney disease.",
       icon: "ti-info-circle", color: "accent"
     },
     {
-      q: "How does type 2 diabetes differ from type 1?",
+      q: "Which foods contain carbohydrates that can raise your blood sugar?",
       options: [
-        "Type 1 never causes symptoms, type 2 always does",
-        "In type 1 the pancreas makes little or no insulin; in type 2 it still makes some but cells resist it",
-        "Only type 2 is caused by a virus",
-        "They're the same condition with different names"
-      ],
-      correct: 1,
-      explain: "Type 1 means little or no insulin is made. Type 2 means insulin is still made, but the body's cells don't respond to it normally.",
-      icon: "ti-arrows-left-right", color: "accent"
-    },
-    {
-      q: "What are the typical symptoms of type 2 diabetes?",
-      options: [
-        "Usually none at all",
-        "A high fever",
-        "A skin rash",
-        "Sudden hair loss"
-      ],
-      correct: 0,
-      explain: "Type 2 diabetes usually causes no symptoms — that's part of what makes regular testing important.",
-      icon: "ti-eye-off", color: "warning"
-    },
-    {
-      q: "When symptoms of type 2 diabetes do occur, what might you notice?",
-      options: [
-        "Needing to urinate often, intense thirst, and blurry vision",
-        "Improved eyesight",
-        "Decreased thirst",
-        "Weight gain only"
-      ],
-      correct: 0,
-      explain: "When symptoms happen, they include frequent urination, intense thirst, and blurry vision.",
-      icon: "ti-alert-circle", color: "warning"
-    },
-    {
-      q: "If left unmanaged, type 2 diabetes can lead to which of these?",
-      options: [
-        "Only minor, temporary issues",
-        "Heart attack, stroke, and kidney disease",
-        "Improved vision",
-        "Stronger bones"
-      ],
-      correct: 1,
-      explain: "Unmanaged diabetes can lead to heart attack, stroke, kidney disease, vision problems, and nerve damage.",
-      icon: "ti-heart", color: "danger"
-    },
-    {
-      q: "How can type 2 diabetes be diagnosed?",
-      options: [
-        "A physical exam alone, no blood work needed",
-        "A blood sugar test, or an A1C test showing your average blood sugar over 2 to 3 months",
-        "A urine color chart",
-        "It can't be diagnosed until symptoms appear"
-      ],
-      correct: 1,
-      explain: "Doctors use a blood sugar test (often fasting) or the A1C test, which reflects your average blood sugar over the past 2 to 3 months.",
-      icon: "ti-report-medical", color: "accent"
-    },
-    {
-      q: "Which lifestyle changes are part of managing type 2 diabetes?",
-      options: [
-        "Avoiding all physical activity",
-        "Eating only protein and no vegetables",
-        "Eating fruits, vegetables, whole grains, and low-fat dairy, plus 30 to 60 minutes of activity most days",
-        "Skipping meals to lower blood sugar"
+        "Only candy and desserts",
+        "Meat and fat only",
+        "Bread, pasta, rice, fruits, vegetables, dairy foods, and foods with added sugar",
+        "Nothing you eat raises blood sugar"
       ],
       correct: 2,
-      explain: "Healthy eating and 30 to 60 minutes of activity on most days are core parts of managing type 2 diabetes.",
-      icon: "ti-shield-check", color: "success"
+      explain: "Carbs include starches, fruits, vegetables, dairy, and added sugars — most meats and fats contain very little.",
+      icon: "ti-bread", color: "warning"
     },
     {
-      q: "How can you lower your risk of developing type 2 diabetes?",
+      q: "Which type of fat is the healthier choice?",
       options: [
-        "Nothing can reduce your risk",
-        "Only medication can prevent it",
-        "Avoid all fruit",
-        "Eat a healthy diet, stay physically active, and quit smoking if you smoke"
+        "Saturated fats, like those in butter and cheese",
+        "Trans fats, like those in partially hydrogenated oils",
+        "Monounsaturated and polyunsaturated fats, like those in fish, olive oil, and nuts",
+        "It doesn't matter what type of fat you eat"
+      ],
+      correct: 2,
+      explain: "Monounsaturated and polyunsaturated fats — found in fish, avocado, olive oil, and nuts — are better choices than saturated or trans fats.",
+      icon: "ti-fish", color: "success"
+    },
+    {
+      q: "What's a typical weight-loss goal for someone with overweight and type 2 diabetes?",
+      options: [
+        "At least 50 pounds, no matter your size",
+        "5 to 10 percent of body weight",
+        "Weight loss isn't recommended",
+        "Only weight loss through surgery counts"
+      ],
+      correct: 1,
+      explain: "A typical goal is 5 to 10 percent of body weight — for someone who weighs 240 lbs, that's about 12 to 24 lbs. Even a little weight loss can help.",
+      icon: "ti-scale", color: "success"
+    },
+    {
+      q: "Why does eating a consistent amount of carbs at each meal help?",
+      options: [
+        "It has no effect on blood sugar control",
+        "It guarantees weight loss",
+        "It only matters for people who don't exercise",
+        "It helps prevent blood sugar from swinging too high or too low, especially on certain medicines or insulin"
       ],
       correct: 3,
-      explain: "A healthy diet, regular activity, and quitting smoking (if you smoke) can all lower your risk.",
+      explain: "Eating about the same amount of carbs at meals and snacks helps keep blood sugar from swinging too high or too low.",
+      icon: "ti-clock", color: "accent"
+    },
+    {
+      q: "What is the \"plate method\" for planning meals?",
+      options: [
+        "Filling the whole plate with protein",
+        "Eating everything from one small bowl",
+        "Half the plate as nonstarchy vegetables, one quarter as lean protein, one quarter as carbs",
+        "Skipping the plate and eating only snacks"
+      ],
+      correct: 2,
+      explain: "The plate method splits a 9-inch plate into half vegetables, one quarter lean protein, and one quarter carbohydrates like starches or grains.",
+      icon: "ti-chart-pie", color: "accent"
+    },
+    {
+      q: "Is it OK to have an occasional treat with added sugar?",
+      options: [
+        "No, all added sugar must be avoided completely",
+        "Yes — sugar doesn't have to be avoided entirely, but it should be limited and counted as part of your carbs",
+        "Only on holidays",
+        "Only if you double your medication dose"
+      ],
+      correct: 1,
+      explain: "Added sugar no longer has to be avoided completely — it's about limiting it and counting it toward your total carbs for the meal.",
+      icon: "ti-cookie", color: "warning"
+    },
+    {
+      q: "What diet pattern helps manage both blood sugar and blood pressure?",
+      options: [
+        "Mostly processed and salty foods",
+        "Avoiding all fruits and vegetables",
+        "Only drinking sugary sports drinks",
+        "High in fiber and low in sodium, with plenty of fruits, vegetables, and low-fat dairy"
+      ],
+      correct: 3,
+      explain: "A diet high in fiber and low in sodium, with fruits, vegetables, and low-fat dairy, helps manage both blood sugar and blood pressure.",
       icon: "ti-heart-handshake", color: "success"
     }
   ];
