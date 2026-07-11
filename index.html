@@ -89,6 +89,23 @@
   .q-head { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
   .habit-row .medallion { width: 30px; height: 30px; font-size: 15px; }
   .chart-wrap { position: relative; height: 140px; margin-top: 16px; }
+  .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .food-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 6px; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; background: var(--surface-1); font-size: 12px; text-align: center; user-select: none; font-family: inherit; color: var(--text-primary); }
+  .food-chip i { font-size: 22px; }
+  .food-chip.selected { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+  .food-chip.correct { border-color: var(--success); background: var(--success-bg); color: var(--success); }
+  .food-chip.incorrect { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
+  .sort-zones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .zone-label { font-size: 12px; color: var(--text-secondary); text-align: center; margin-bottom: 6px; }
+  .dropzone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 10px; min-height: 76px; display: flex; flex-wrap: wrap; align-content: flex-start; align-items: center; justify-content: center; gap: 8px; }
+  .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 56px; padding-top: 4px; }
+  .plate-outer { position: relative; width: 220px; height: 220px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid var(--border); overflow: hidden; background: var(--surface-2); }
+  .plate-zone { position: absolute; display: flex; align-items: center; justify-content: center; box-sizing: border-box; border: 1px dashed var(--border); }
+  .plate-zone-label { position: absolute; top: 6px; left: 4px; right: 4px; text-align: center; font-size: 10px; color: var(--text-muted); line-height: 1.2; pointer-events: none; }
+  .carb-item-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; }
+  .carb-tag { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+  input.num-input { font-family: inherit; font-size: 16px; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; width: 110px; background: var(--surface-1); color: var(--text-primary); }
+  .character-wrap { display: flex; justify-content: center; }
 </style>
 </head>
 <body>
@@ -160,6 +177,28 @@
       <span class="muted">Today's healthy choices</span>
       <span id="habit-points" class="pill">0 pts</span>
     </div>
+    <div class="character-wrap">
+      <svg id="char-svg" viewBox="-70 -80 140 200" width="140" height="200" role="img" aria-label="Character that feels better as you complete more healthy habits">
+        <title>How you're feeling today</title>
+        <g id="char-group">
+          <rect x="-22" y="10" width="44" height="55" rx="18" fill="var(--accent)"></rect>
+          <line x1="-20" y1="20" x2="-38" y2="45" stroke="var(--accent)" stroke-width="10" stroke-linecap="round"></line>
+          <line x1="20" y1="20" x2="38" y2="45" stroke="var(--accent)" stroke-width="10" stroke-linecap="round"></line>
+          <line x1="-10" y1="63" x2="-14" y2="95" stroke="var(--accent)" stroke-width="10" stroke-linecap="round"></line>
+          <line x1="10" y1="63" x2="14" y2="95" stroke="var(--accent)" stroke-width="10" stroke-linecap="round"></line>
+          <circle cx="0" cy="-20" r="28" fill="var(--accent)"></circle>
+          <ellipse id="char-eye-l" cx="-10" cy="-22" rx="3" ry="4" fill="var(--surface-1)"></ellipse>
+          <ellipse id="char-eye-r" cx="10" cy="-22" rx="3" ry="4" fill="var(--surface-1)"></ellipse>
+          <path id="char-mouth" d="M -10,-6 Q 0,-2 10,-6" stroke="var(--surface-1)" stroke-width="3" fill="none" stroke-linecap="round"></path>
+          <path id="char-sweat" d="M30,-42 C36,-32 36,-24 30,-24 C24,-24 24,-32 30,-42 Z" fill="var(--accent)"></path>
+          <path id="char-hunger" d="M-14,38 Q-7,30 0,38 Q7,46 14,38" stroke="var(--warning)" stroke-width="3" fill="none" stroke-linecap="round"></path>
+          <g id="char-sparkle" opacity="0">
+            <path d="M45,-62 L48,-54 L56,-51 L48,-48 L45,-40 L42,-48 L34,-51 L42,-54 Z" fill="var(--success)"></path>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <p id="char-status" class="muted" style="text-align: center; margin: -8px 0 12px;"></p>
     <div id="habit-list"></div>
     <div class="row" style="margin-top: 8px; margin-bottom: 0;">
       <div>
@@ -183,6 +222,7 @@
 (function() {
   var questions = [
     {
+      type: "mc",
       q: "Why does diet matter if you have type 2 diabetes?",
       options: [
         "It has no real effect on blood sugar",
@@ -195,30 +235,45 @@
       icon: "ti-info-circle", color: "accent"
     },
     {
+      type: "select",
       q: "Which foods contain carbohydrates that can raise your blood sugar?",
-      options: [
-        "Only candy and desserts",
-        "Meat and fat only",
-        "Bread, pasta, rice, fruits, vegetables, dairy foods, and foods with added sugar",
-        "Nothing you eat raises blood sugar"
+      instructions: "Tap every food below that contains carbohydrates.",
+      icon: "ti-bread", color: "warning",
+      foods: [
+        { name: "Bread", icon: "ti-bread", carb: true },
+        { name: "Rice", icon: "ti-bowl-spoon", carb: true },
+        { name: "Apple", icon: "ti-apple", carb: true },
+        { name: "Milk", icon: "ti-milk", carb: true },
+        { name: "Cookie", icon: "ti-cookie", carb: true },
+        { name: "Chicken", icon: "ti-meat", carb: false },
+        { name: "Fish", icon: "ti-fish", carb: false },
+        { name: "Egg", icon: "ti-egg", carb: false },
+        { name: "Cheese", icon: "ti-cheese", carb: false },
+        { name: "Avocado", icon: "ti-avocado", carb: false }
       ],
-      correct: 2,
-      explain: "Carbs include starches, fruits, vegetables, dairy, and added sugars — most meats and fats contain very little.",
-      icon: "ti-bread", color: "warning"
+      explain: "Carbs come from bread, rice, fruit, milk, and sweets — meat, fish, eggs, cheese, and avocado contain little to none."
     },
     {
-      q: "Which type of fat is the healthier choice?",
-      options: [
-        "Saturated fats, like those in butter and cheese",
-        "Trans fats, like those in partially hydrogenated oils",
-        "Monounsaturated and polyunsaturated fats, like those in fish, olive oil, and nuts",
-        "It doesn't matter what type of fat you eat"
+      type: "sort",
+      q: "Sort each food into the right kind of fat.",
+      instructions: "Drag each food into the bucket where it belongs.",
+      icon: "ti-fish", color: "success",
+      zones: [
+        { id: "sat", label: "Saturated & trans fats" },
+        { id: "unsat", label: "Unsaturated fats" }
       ],
-      correct: 2,
-      explain: "Monounsaturated and polyunsaturated fats — found in fish, avocado, olive oil, and nuts — are better choices than saturated or trans fats.",
-      icon: "ti-fish", color: "success"
+      items: [
+        { name: "Cheese", icon: "ti-cheese", zone: "sat" },
+        { name: "Ice cream", icon: "ti-ice-cream", zone: "sat" },
+        { name: "Cookie", icon: "ti-cookie", zone: "sat" },
+        { name: "Fish", icon: "ti-fish", zone: "unsat" },
+        { name: "Avocado", icon: "ti-avocado", zone: "unsat" },
+        { name: "Olive oil", icon: "ti-droplet", zone: "unsat" }
+      ],
+      explain: "Cheese, ice cream, and store-bought cookies are high in saturated or trans fat. Fish, avocado, and olive oil are healthier unsaturated fats."
     },
     {
+      type: "mc",
       q: "What's a typical weight-loss goal for someone with overweight and type 2 diabetes?",
       options: [
         "At least 50 pounds, no matter your size",
@@ -231,30 +286,38 @@
       icon: "ti-scale", color: "success"
     },
     {
-      q: "Why does eating a consistent amount of carbs at each meal help?",
-      options: [
-        "It has no effect on blood sugar control",
-        "It guarantees weight loss",
-        "It only matters for people who don't exercise",
-        "It helps prevent blood sugar from swinging too high or too low, especially on certain medicines or insulin"
+      type: "carbcount",
+      q: "Count the carbs on this dinner plate.",
+      instructions: "Add up the carbs for every item below, then enter the total in grams.",
+      icon: "ti-calculator", color: "accent",
+      plateItems: [
+        { name: "Grilled chicken breast", icon: "ti-meat", carbs: 0 },
+        { name: "Brown rice (1 cup)", icon: "ti-bowl-spoon", carbs: 45 },
+        { name: "Broccoli (1 cup)", icon: "ti-salad", carbs: 5 },
+        { name: "Dinner roll", icon: "ti-bread", carbs: 15 }
       ],
-      correct: 3,
-      explain: "Eating about the same amount of carbs at meals and snacks helps keep blood sugar from swinging too high or too low.",
-      icon: "ti-clock", color: "accent"
+      correctTotal: 65,
+      explain: "Rice (45g) + broccoli (5g) + a dinner roll (15g) = 65g of carbs. The chicken breast has 0g — meat doesn't count."
     },
     {
-      q: "What is the \"plate method\" for planning meals?",
-      options: [
-        "Filling the whole plate with protein",
-        "Eating everything from one small bowl",
-        "Half the plate as nonstarchy vegetables, one quarter as lean protein, one quarter as carbs",
-        "Skipping the plate and eating only snacks"
+      type: "plate",
+      q: "Build a plate using the plate method.",
+      instructions: "Drag each food onto the right portion of the plate.",
+      icon: "ti-chart-pie", color: "accent",
+      zones: [
+        { id: "veg", label: "Vegetables — half plate", style: "top:0; left:0; width:100%; height:50%;" },
+        { id: "protein", label: "Protein — quarter", style: "bottom:0; left:0; width:50%; height:50%;" },
+        { id: "carb", label: "Carbs — quarter", style: "bottom:0; right:0; width:50%; height:50%;" }
       ],
-      correct: 2,
-      explain: "The plate method splits a 9-inch plate into half vegetables, one quarter lean protein, and one quarter carbohydrates like starches or grains.",
-      icon: "ti-chart-pie", color: "accent"
+      items: [
+        { name: "Broccoli", icon: "ti-salad", zone: "veg" },
+        { name: "Grilled chicken", icon: "ti-meat", zone: "protein" },
+        { name: "Brown rice", icon: "ti-bowl-spoon", zone: "carb" }
+      ],
+      explain: "The plate method: half nonstarchy vegetables, one quarter lean protein, one quarter carbs like starches or grains."
     },
     {
+      type: "mc",
       q: "Is it OK to have an occasional treat with added sugar?",
       options: [
         "No, all added sugar must be avoided completely",
@@ -267,6 +330,7 @@
       icon: "ti-cookie", color: "warning"
     },
     {
+      type: "mc",
       q: "What diet pattern helps manage both blood sugar and blood pressure?",
       options: [
         "Mostly processed and salty foods",
@@ -307,6 +371,334 @@
     bestEl.textContent = best > 0 ? 'Best ' + best + '/' + questions.length : 'No best yet';
   }
 
+  function finish(isCorrect, explain) {
+    answered = true;
+    if (isCorrect) {
+      score++;
+      feedbackEl.style.color = 'var(--success)';
+      feedbackEl.textContent = 'Correct — ' + explain;
+    } else {
+      feedbackEl.style.color = 'var(--danger)';
+      feedbackEl.textContent = 'Not quite — ' + explain;
+    }
+    scoreEl.textContent = 'Score ' + score;
+    nextBtn.style.display = 'inline-flex';
+  }
+
+  function makeDraggable(chip, getZones, onDrop) {
+    chip.style.touchAction = 'none';
+    chip.addEventListener('pointerdown', function(e) {
+      if (answered) return;
+      e.preventDefault();
+      var rect = chip.getBoundingClientRect();
+      var offsetX = e.clientX - rect.left;
+      var offsetY = e.clientY - rect.top;
+      var placeholder = document.createElement('div');
+      placeholder.style.width = rect.width + 'px';
+      placeholder.style.height = rect.height + 'px';
+      placeholder.style.flexShrink = '0';
+      chip.parentNode.insertBefore(placeholder, chip.nextSibling);
+      document.body.appendChild(chip);
+      chip.style.position = 'fixed';
+      chip.style.zIndex = '1000';
+      chip.style.width = rect.width + 'px';
+      chip.style.left = rect.left + 'px';
+      chip.style.top = rect.top + 'px';
+      try { chip.setPointerCapture(e.pointerId); } catch (err) {}
+
+      function onMove(ev) {
+        chip.style.left = (ev.clientX - offsetX) + 'px';
+        chip.style.top = (ev.clientY - offsetY) + 'px';
+      }
+      function onUp(ev) {
+        chip.removeEventListener('pointermove', onMove);
+        chip.removeEventListener('pointerup', onUp);
+        var zones = getZones();
+        var target = null;
+        zones.forEach(function(z) {
+          var zr = z.getBoundingClientRect();
+          if (ev.clientX >= zr.left && ev.clientX <= zr.right && ev.clientY >= zr.top && ev.clientY <= zr.bottom) target = z;
+        });
+        chip.style.position = '';
+        chip.style.zIndex = '';
+        chip.style.left = '';
+        chip.style.top = '';
+        chip.style.width = '';
+        if (target) {
+          placeholder.remove();
+          target.appendChild(chip);
+        } else {
+          placeholder.parentNode.insertBefore(chip, placeholder);
+          placeholder.remove();
+        }
+        onDrop(chip, target);
+      }
+      chip.addEventListener('pointermove', onMove);
+      chip.addEventListener('pointerup', onUp);
+    });
+  }
+
+  function renderMC(item) {
+    item.options.forEach(function(opt, i) {
+      var btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.className = 'opt-btn';
+      btn.addEventListener('click', function() {
+        if (answered) return;
+        var buttons = optionsEl.querySelectorAll('button');
+        buttons.forEach(function(b, j) {
+          b.disabled = true;
+          if (j === item.correct) {
+            b.style.borderColor = 'var(--success)';
+            b.style.color = 'var(--success)';
+            b.style.background = 'var(--success-bg)';
+          } else if (j === i) {
+            b.style.borderColor = 'var(--danger)';
+            b.style.color = 'var(--danger)';
+            b.style.background = 'var(--danger-bg)';
+          }
+        });
+        finish(i === item.correct, item.explain);
+      });
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function renderSelect(item) {
+    var hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.style.margin = '0 0 10px';
+    hint.textContent = item.instructions;
+    optionsEl.appendChild(hint);
+
+    var grid = document.createElement('div');
+    grid.className = 'food-grid';
+    var selected = {};
+    var chips = item.foods.map(function(food, i) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'food-chip';
+      chip.innerHTML = '<i class="ti ' + food.icon + '" aria-hidden="true"></i><span>' + food.name + '</span>';
+      chip.addEventListener('click', function() {
+        if (answered) return;
+        selected[i] = !selected[i];
+        chip.classList.toggle('selected', selected[i]);
+      });
+      grid.appendChild(chip);
+      return chip;
+    });
+    optionsEl.appendChild(grid);
+
+    var checkBtn = document.createElement('button');
+    checkBtn.className = 'primary-btn';
+    checkBtn.textContent = 'Check answer';
+    checkBtn.addEventListener('click', function() {
+      if (answered) return;
+      var allCorrect = true;
+      item.foods.forEach(function(food, i) {
+        var chip = chips[i];
+        var isSel = !!selected[i];
+        chip.classList.remove('selected');
+        chip.disabled = true;
+        if (food.carb) {
+          chip.classList.add(isSel ? 'correct' : 'incorrect');
+          if (!isSel) allCorrect = false;
+        } else if (isSel) {
+          chip.classList.add('incorrect');
+          allCorrect = false;
+        }
+      });
+      finish(allCorrect, item.explain);
+    });
+    optionsEl.appendChild(checkBtn);
+  }
+
+  function renderSort(item) {
+    var hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.style.margin = '0 0 10px';
+    hint.textContent = item.instructions;
+    optionsEl.appendChild(hint);
+
+    var zonesWrap = document.createElement('div');
+    zonesWrap.className = 'sort-zones';
+    var zoneEls = {};
+    item.zones.forEach(function(z) {
+      var col = document.createElement('div');
+      var label = document.createElement('div');
+      label.className = 'zone-label';
+      label.textContent = z.label;
+      var box = document.createElement('div');
+      box.className = 'dropzone';
+      box.dataset.zone = z.id;
+      col.appendChild(label);
+      col.appendChild(box);
+      zonesWrap.appendChild(col);
+      zoneEls[z.id] = box;
+    });
+    optionsEl.appendChild(zonesWrap);
+
+    var tray = document.createElement('div');
+    tray.className = 'tray';
+    optionsEl.appendChild(tray);
+
+    var checkBtn = document.createElement('button');
+    checkBtn.className = 'primary-btn';
+    checkBtn.textContent = 'Check answer';
+    checkBtn.disabled = true;
+    checkBtn.style.marginTop = '4px';
+
+    var placements = {};
+    function updateCheckBtn() {
+      checkBtn.disabled = Object.keys(placements).length < item.items.length;
+    }
+
+    var chips = item.items.map(function(food, i) {
+      var chip = document.createElement('div');
+      chip.className = 'food-chip';
+      chip.innerHTML = '<i class="ti ' + food.icon + '" aria-hidden="true"></i><span>' + food.name + '</span>';
+      tray.appendChild(chip);
+      var allZones = Object.keys(zoneEls).map(function(k) { return zoneEls[k]; }).concat([tray]);
+      makeDraggable(chip, function() { return allZones; }, function(draggedChip, target) {
+        if (!target || target === tray) {
+          delete placements[i];
+        } else {
+          placements[i] = target.dataset.zone;
+        }
+        updateCheckBtn();
+      });
+      return chip;
+    });
+
+    checkBtn.addEventListener('click', function() {
+      if (answered) return;
+      var allCorrect = true;
+      item.items.forEach(function(food, i) {
+        var ok = placements[i] === food.zone;
+        chips[i].classList.add(ok ? 'correct' : 'incorrect');
+        if (!ok) allCorrect = false;
+      });
+      checkBtn.disabled = true;
+      finish(allCorrect, item.explain);
+    });
+    optionsEl.appendChild(checkBtn);
+  }
+
+  function renderPlate(item) {
+    var hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.style.margin = '0 0 10px';
+    hint.textContent = item.instructions;
+    optionsEl.appendChild(hint);
+
+    var plateOuter = document.createElement('div');
+    plateOuter.className = 'plate-outer';
+    var zoneEls = {};
+    item.zones.forEach(function(z) {
+      var box = document.createElement('div');
+      box.className = 'plate-zone';
+      box.dataset.zone = z.id;
+      box.setAttribute('style', box.getAttribute('style') ? box.getAttribute('style') + z.style : z.style);
+      var label = document.createElement('span');
+      label.className = 'plate-zone-label';
+      label.textContent = z.label;
+      box.appendChild(label);
+      plateOuter.appendChild(box);
+      zoneEls[z.id] = box;
+    });
+    optionsEl.appendChild(plateOuter);
+
+    var tray = document.createElement('div');
+    tray.className = 'tray';
+    optionsEl.appendChild(tray);
+
+    var checkBtn = document.createElement('button');
+    checkBtn.className = 'primary-btn';
+    checkBtn.textContent = 'Check answer';
+    checkBtn.disabled = true;
+    checkBtn.style.marginTop = '4px';
+
+    var placements = {};
+    function updateCheckBtn() {
+      checkBtn.disabled = Object.keys(placements).length < item.items.length;
+    }
+
+    var chips = item.items.map(function(food, i) {
+      var chip = document.createElement('div');
+      chip.className = 'food-chip';
+      chip.innerHTML = '<i class="ti ' + food.icon + '" aria-hidden="true"></i><span>' + food.name + '</span>';
+      tray.appendChild(chip);
+      var allZones = Object.keys(zoneEls).map(function(k) { return zoneEls[k]; }).concat([tray]);
+      makeDraggable(chip, function() { return allZones; }, function(draggedChip, target) {
+        if (!target || target === tray) {
+          delete placements[i];
+          return;
+        }
+        Array.prototype.forEach.call(target.querySelectorAll('.food-chip'), function(existing) {
+          if (existing !== draggedChip) {
+            tray.appendChild(existing);
+            var existingIndex = chips.indexOf(existing);
+            if (existingIndex > -1) delete placements[existingIndex];
+          }
+        });
+        placements[i] = target.dataset.zone;
+        updateCheckBtn();
+      });
+      return chip;
+    });
+
+    checkBtn.addEventListener('click', function() {
+      if (answered) return;
+      var allCorrect = true;
+      item.items.forEach(function(food, i) {
+        var ok = placements[i] === food.zone;
+        chips[i].classList.add(ok ? 'correct' : 'incorrect');
+        if (!ok) allCorrect = false;
+      });
+      checkBtn.disabled = true;
+      finish(allCorrect, item.explain);
+    });
+    optionsEl.appendChild(checkBtn);
+  }
+
+  function renderCarbCount(item) {
+    var hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.style.margin = '0 0 10px';
+    hint.textContent = item.instructions;
+    optionsEl.appendChild(hint);
+
+    var list = document.createElement('div');
+    item.plateItems.forEach(function(food) {
+      var row = document.createElement('div');
+      row.className = 'carb-item-row';
+      row.innerHTML = '<span style="display:flex; align-items:center; gap:8px;"><i class="ti ' + food.icon + '" aria-hidden="true"></i>' + food.name + '</span><span class="carb-tag">' + food.carbs + 'g carbs</span>';
+      list.appendChild(row);
+    });
+    optionsEl.appendChild(list);
+
+    var inputRow = document.createElement('div');
+    inputRow.style.cssText = 'display:flex; align-items:center; gap:10px; margin-top:12px;';
+    var input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'num-input';
+    input.placeholder = 'Total grams';
+    var checkBtn = document.createElement('button');
+    checkBtn.className = 'primary-btn';
+    checkBtn.textContent = 'Check total';
+    checkBtn.addEventListener('click', function() {
+      if (answered) return;
+      var val = parseInt(input.value, 10);
+      var isCorrect = val === item.correctTotal;
+      input.disabled = true;
+      input.style.borderColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+      finish(isCorrect, item.explain);
+    });
+    inputRow.appendChild(input);
+    inputRow.appendChild(checkBtn);
+    optionsEl.appendChild(inputRow);
+  }
+
   function renderQuestion() {
     answered = false;
     var item = questions[idx];
@@ -319,42 +711,11 @@
     feedbackEl.textContent = '';
     nextBtn.style.display = 'none';
     optionsEl.innerHTML = '';
-    item.options.forEach(function(opt, i) {
-      var btn = document.createElement('button');
-      btn.textContent = opt;
-      btn.className = 'opt-btn';
-      btn.addEventListener('click', function() { selectAnswer(i); });
-      optionsEl.appendChild(btn);
-    });
-  }
-
-  function selectAnswer(i) {
-    if (answered) return;
-    answered = true;
-    var item = questions[idx];
-    var buttons = optionsEl.querySelectorAll('button');
-    buttons.forEach(function(b, j) {
-      b.disabled = true;
-      if (j === item.correct) {
-        b.style.borderColor = 'var(--success)';
-        b.style.color = 'var(--success)';
-        b.style.background = 'var(--success-bg)';
-      } else if (j === i) {
-        b.style.borderColor = 'var(--danger)';
-        b.style.color = 'var(--danger)';
-        b.style.background = 'var(--danger-bg)';
-      }
-    });
-    if (i === item.correct) {
-      score++;
-      feedbackEl.style.color = 'var(--success)';
-      feedbackEl.textContent = 'Correct — ' + item.explain;
-    } else {
-      feedbackEl.style.color = 'var(--danger)';
-      feedbackEl.textContent = 'Not quite — ' + item.explain;
-    }
-    scoreEl.textContent = 'Score ' + score;
-    nextBtn.style.display = 'inline-flex';
+    if (item.type === 'select') renderSelect(item);
+    else if (item.type === 'sort') renderSort(item);
+    else if (item.type === 'plate') renderPlate(item);
+    else if (item.type === 'carbcount') renderCarbCount(item);
+    else renderMC(item);
   }
 
   nextBtn.addEventListener('click', function() {
@@ -488,6 +849,38 @@
     var streak = parseInt(localStorage.getItem('pdq_habit_streak') || '0', 10);
     habitStreakEl.textContent = streak > 0 ? streak + '-day streak of full days' : 'Complete all 5 to start a streak';
     renderChart();
+    renderCharacter(doneCount);
+  }
+
+  var charMouth = document.getElementById('char-mouth');
+  var charEyeL = document.getElementById('char-eye-l');
+  var charEyeR = document.getElementById('char-eye-r');
+  var charGroup = document.getElementById('char-group');
+  var charSweat = document.getElementById('char-sweat');
+  var charHunger = document.getElementById('char-hunger');
+  var charSparkle = document.getElementById('char-sparkle');
+  var charStatus = document.getElementById('char-status');
+
+  function renderCharacter(doneCount) {
+    var mouthY = -14 + doneCount * 3.2;
+    var eyeRy = 1.5 + doneCount * 0.7;
+    var tilt = -6 + doneCount * 1.2;
+    var sweatOp = Math.max(0, 1 - doneCount / 3);
+    var hungerOp = Math.max(0, 1 - doneCount / 3);
+    var sparkleOp = Math.max(0, Math.min(1, (doneCount - 3) / 2));
+    charMouth.setAttribute('d', 'M -10,-6 Q 0,' + mouthY.toFixed(1) + ' 10,-6');
+    charEyeL.setAttribute('ry', eyeRy.toFixed(1));
+    charEyeR.setAttribute('ry', eyeRy.toFixed(1));
+    charGroup.setAttribute('transform', 'rotate(' + tilt.toFixed(1) + ')');
+    charSweat.style.opacity = sweatOp;
+    charHunger.style.opacity = hungerOp;
+    charSparkle.style.opacity = sparkleOp;
+    var msg;
+    if (doneCount <= 0) msg = 'Feeling tired, thirsty, and a little foggy.';
+    else if (doneCount <= 2) msg = 'Starting to feel a bit better.';
+    else if (doneCount <= 4) msg = 'Feeling steadier today.';
+    else msg = 'Feeling great — nice work!';
+    charStatus.textContent = msg;
   }
 
   habitResetBtn.addEventListener('click', function() {
