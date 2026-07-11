@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prediabetes quest</title>
+<title>Type 2 diabetes quest</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <style>
@@ -123,8 +123,8 @@
         <rect x="-2" y="-18" width="4" height="12" rx="2" fill="var(--text-secondary)"></rect>
       </g>
     </svg>
-    <h1>Prediabetes quest</h1>
-    <p class="subtitle">A quick knowledge quiz and daily habit tracker, based on the ADA's prediabetes guide.</p>
+    <h1>Type 2 diabetes quest</h1>
+    <p class="subtitle">A quick knowledge quiz and daily habit tracker, based on UpToDate's patient education guide.</p>
   </header>
 
   <div class="card">
@@ -174,7 +174,7 @@
   </div>
 
   <footer>
-    Based on the American Diabetes Association's <em>Prediabetes: What is it and what can I do?</em> guide.
+    Based on UpToDate's <em>Patient education: Type 2 diabetes in adults (The Basics)</em>.
     This app is for education only, not medical advice — talk to your doctor about your personal risk.
   </footer>
 </div>
@@ -183,100 +183,100 @@
 (function() {
   var questions = [
     {
-      q: "What exactly is prediabetes?",
+      q: "What actually happens in type 2 diabetes?",
       options: [
-        "A mild form of type 1 diabetes",
-        "Blood sugar higher than normal, but not high enough to be called diabetes",
-        "A vitamin deficiency",
-        "An allergy to sugar"
+        "The pancreas makes little or no insulin at all",
+        "The pancreas still makes some insulin, but cells stop responding to it normally",
+        "The stomach stops digesting sugar",
+        "The liver stops making insulin"
       ],
       correct: 1,
-      explain: "Prediabetes means blood glucose is above normal but below the diabetes threshold.",
+      explain: "In type 2 diabetes, the pancreas still makes some insulin, but the body's cells stop responding normally — eventually the pancreas can't keep up.",
       icon: "ti-info-circle", color: "accent"
     },
     {
-      q: "What symptoms usually warn you that you have prediabetes?",
+      q: "How does type 2 diabetes differ from type 1?",
       options: [
-        "Frequent thirst and blurry vision",
-        "Sudden weight gain",
-        "There usually aren't any clear symptoms",
-        "Numbness in the feet"
+        "Type 1 never causes symptoms, type 2 always does",
+        "In type 1 the pancreas makes little or no insulin; in type 2 it still makes some but cells resist it",
+        "Only type 2 is caused by a virus",
+        "They're the same condition with different names"
       ],
-      correct: 2,
-      explain: "There are no clear symptoms of prediabetes — many people have it without knowing.",
+      correct: 1,
+      explain: "Type 1 means little or no insulin is made. Type 2 means insulin is still made, but the body's cells don't respond to it normally.",
+      icon: "ti-arrows-left-right", color: "accent"
+    },
+    {
+      q: "What are the typical symptoms of type 2 diabetes?",
+      options: [
+        "Usually none at all",
+        "A high fever",
+        "A skin rash",
+        "Sudden hair loss"
+      ],
+      correct: 0,
+      explain: "Type 2 diabetes usually causes no symptoms — that's part of what makes regular testing important.",
       icon: "ti-eye-off", color: "warning"
     },
     {
-      q: "Besides type 2 diabetes, what else does prediabetes raise your risk for?",
+      q: "When symptoms of type 2 diabetes do occur, what might you notice?",
       options: [
-        "Broken bones",
-        "Heart disease and stroke",
-        "The common cold",
-        "Nothing else"
+        "Needing to urinate often, intense thirst, and blurry vision",
+        "Improved eyesight",
+        "Decreased thirst",
+        "Weight gain only"
+      ],
+      correct: 0,
+      explain: "When symptoms happen, they include frequent urination, intense thirst, and blurry vision.",
+      icon: "ti-alert-circle", color: "warning"
+    },
+    {
+      q: "If left unmanaged, type 2 diabetes can lead to which of these?",
+      options: [
+        "Only minor, temporary issues",
+        "Heart attack, stroke, and kidney disease",
+        "Improved vision",
+        "Stronger bones"
       ],
       correct: 1,
-      explain: "Prediabetes also raises your risk for heart disease and stroke.",
+      explain: "Unmanaged diabetes can lead to heart attack, stroke, kidney disease, vision problems, and nerve damage.",
       icon: "ti-heart", color: "danger"
     },
     {
-      q: "Which combination can help delay or prevent type 2 diabetes?",
+      q: "How can type 2 diabetes be diagnosed?",
       options: [
-        "Only prescription medication",
-        "Avoiding all carbohydrates completely",
-        "Daily activity, weight loss if needed, and medication if your doctor prescribes it",
-        "Nothing — it's inevitable"
+        "A physical exam alone, no blood work needed",
+        "A blood sugar test, or an A1C test showing your average blood sugar over 2 to 3 months",
+        "A urine color chart",
+        "It can't be diagnosed until symptoms appear"
+      ],
+      correct: 1,
+      explain: "Doctors use a blood sugar test (often fasting) or the A1C test, which reflects your average blood sugar over the past 2 to 3 months.",
+      icon: "ti-report-medical", color: "accent"
+    },
+    {
+      q: "Which lifestyle changes are part of managing type 2 diabetes?",
+      options: [
+        "Avoiding all physical activity",
+        "Eating only protein and no vegetables",
+        "Eating fruits, vegetables, whole grains, and low-fat dairy, plus 30 to 60 minutes of activity most days",
+        "Skipping meals to lower blood sugar"
       ],
       correct: 2,
-      explain: "Activity, weight loss (if needed), and medication (if prescribed) can all help delay or prevent it.",
+      explain: "Healthy eating and 30 to 60 minutes of activity on most days are core parts of managing type 2 diabetes.",
       icon: "ti-shield-check", color: "success"
     },
     {
-      q: "How much physical activity does the guide suggest?",
+      q: "How can you lower your risk of developing type 2 diabetes?",
       options: [
-        "Walking about 30 minutes, 5 days a week",
-        "Running a marathon monthly",
-        "10,000 push-ups a week",
-        "No specific amount"
-      ],
-      correct: 0,
-      explain: "Even shorter walks spread through the day count if you can't do 30 minutes at once.",
-      icon: "ti-walk", color: "accent"
-    },
-    {
-      q: "How much weight loss can meaningfully lower diabetes risk?",
-      options: [
-        "Only losing 50+ pounds counts",
-        "You must reach a 'normal' BMI first",
-        "Weight loss doesn't affect risk",
-        "As little as 7% of body weight — about 15 lbs if you weigh 200"
+        "Nothing can reduce your risk",
+        "Only medication can prevent it",
+        "Avoid all fruit",
+        "Eat a healthy diet, stay physically active, and quit smoking if you smoke"
       ],
       correct: 3,
-      explain: "Even a modest loss, around 7% of body weight, can lower your risk.",
-      icon: "ti-scale", color: "success"
-    },
-    {
-      q: "Which food swap matches the guide's advice?",
-      options: [
-        "Fruit instead of cake, pie, or cookies",
-        "Deep-fried instead of grilled or baked",
-        "Juice instead of water",
-        "Processed meats over fish"
-      ],
-      correct: 0,
-      explain: "Fruit over dessert, water over soda/juice, and fish over processed meat are all recommended swaps.",
-      icon: "ti-apple", color: "success"
-    },
-    {
-      q: "Where can you check your own risk for type 2 diabetes?",
-      options: [
-        "There's no way to check without lab work",
-        "diabetes.org/risktest",
-        "By guessing based on family history alone",
-        "Only a specialist can tell you"
-      ],
-      correct: 1,
-      explain: "The ADA risk test at diabetes.org/risktest is a quick way to check.",
-      icon: "ti-clipboard-check", color: "accent"
+      explain: "A healthy diet, regular activity, and quitting smoking (if you smoke) can all lower your risk.",
+      icon: "ti-heart-handshake", color: "success"
     }
   ];
 
