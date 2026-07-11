@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prediabetes quest</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <style>
   :root {
     --bg: #f7f6f2;
@@ -83,11 +84,45 @@
   .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; font-size: 15px; font-weight: 600; }
   footer { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 2rem; }
   footer a { color: var(--text-muted); }
+  .hero { display: block; margin: 0 0 1.5rem; }
+  .medallion { display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
+  .q-head { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .habit-row .medallion { width: 30px; height: 30px; font-size: 15px; }
+  .chart-wrap { position: relative; height: 140px; margin-top: 16px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <svg class="hero" viewBox="0 0 640 150" width="100%" height="150" role="img" aria-label="Illustration of a person walking under the sun, next to a water droplet, a heart, and an apple">
+      <title>Healthy habits illustration</title>
+      <path d="M0,120 Q320,90 640,120 L640,150 L0,150 Z" fill="var(--surface-2)"></path>
+      <circle cx="560" cy="42" r="26" fill="var(--warning)"></circle>
+      <g stroke="var(--warning)" stroke-width="4" stroke-linecap="round">
+        <line x1="560" y1="4" x2="560" y2="-6"></line>
+        <line x1="592" y1="18" x2="600" y2="10"></line>
+        <line x1="606" y1="42" x2="618" y2="42"></line>
+      </g>
+      <g transform="translate(110,45)">
+        <circle cx="0" cy="0" r="11" fill="var(--accent)"></circle>
+        <rect x="-8" y="12" width="16" height="34" rx="8" fill="var(--accent)"></rect>
+        <line x1="-6" y1="44" x2="-20" y2="76" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"></line>
+        <line x1="6" y1="44" x2="18" y2="72" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"></line>
+        <line x1="-8" y1="22" x2="-24" y2="38" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"></line>
+        <line x1="8" y1="22" x2="22" y2="8" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"></line>
+      </g>
+      <g transform="translate(280,55)">
+        <path d="M0,42 C-36,14 -30,-14 -6,-14 C4,-14 0,-2 0,-2 C0,-2 -4,-14 6,-14 C30,-14 36,14 0,42 Z" fill="var(--accent)" transform="scale(0.6) translate(0,10)"></path>
+      </g>
+      <g transform="translate(400,60)">
+        <path d="M0,15 C0,-6 -22,-6 -22,13 C-22,28 0,45 0,45 C0,45 22,28 22,13 C22,-6 0,-6 0,15 Z" fill="var(--danger)"></path>
+      </g>
+      <g transform="translate(500,60)">
+        <circle cx="-11" cy="10" r="19" fill="var(--success)"></circle>
+        <circle cx="11" cy="10" r="19" fill="var(--success)"></circle>
+        <rect x="-2" y="-18" width="4" height="12" rx="2" fill="var(--text-secondary)"></rect>
+      </g>
+    </svg>
     <h1>Prediabetes quest</h1>
     <p class="subtitle">A quick knowledge quiz and daily habit tracker, based on the ADA's prediabetes guide.</p>
   </header>
@@ -102,7 +137,10 @@
     </div>
 
     <div id="q-body">
-      <p id="q-question" style="font-size: 16px; font-weight: 600; margin: 0 0 1rem;"></p>
+      <div class="q-head">
+        <div id="q-icon" class="medallion" style="width: 40px; height: 40px; font-size: 18px;"></div>
+        <p id="q-question" style="font-size: 16px; font-weight: 600; margin: 0;"></p>
+      </div>
       <div id="q-options"></div>
       <p id="q-feedback" style="font-size: 14px; margin: 12px 0 0; min-height: 20px;"></p>
       <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
@@ -130,6 +168,9 @@
       </div>
       <button id="habit-reset-btn" style="font-size: 13px; padding: 6px 10px;">Reset today</button>
     </div>
+    <div class="chart-wrap">
+      <canvas id="habit-chart"></canvas>
+    </div>
   </div>
 
   <footer>
@@ -150,7 +191,8 @@
         "An allergy to sugar"
       ],
       correct: 1,
-      explain: "Prediabetes means blood glucose is above normal but below the diabetes threshold."
+      explain: "Prediabetes means blood glucose is above normal but below the diabetes threshold.",
+      icon: "ti-info-circle", color: "accent"
     },
     {
       q: "What symptoms usually warn you that you have prediabetes?",
@@ -161,7 +203,8 @@
         "Numbness in the feet"
       ],
       correct: 2,
-      explain: "There are no clear symptoms of prediabetes — many people have it without knowing."
+      explain: "There are no clear symptoms of prediabetes — many people have it without knowing.",
+      icon: "ti-eye-off", color: "warning"
     },
     {
       q: "Besides type 2 diabetes, what else does prediabetes raise your risk for?",
@@ -172,7 +215,8 @@
         "Nothing else"
       ],
       correct: 1,
-      explain: "Prediabetes also raises your risk for heart disease and stroke."
+      explain: "Prediabetes also raises your risk for heart disease and stroke.",
+      icon: "ti-heart", color: "danger"
     },
     {
       q: "Which combination can help delay or prevent type 2 diabetes?",
@@ -183,7 +227,8 @@
         "Nothing — it's inevitable"
       ],
       correct: 2,
-      explain: "Activity, weight loss (if needed), and medication (if prescribed) can all help delay or prevent it."
+      explain: "Activity, weight loss (if needed), and medication (if prescribed) can all help delay or prevent it.",
+      icon: "ti-shield-check", color: "success"
     },
     {
       q: "How much physical activity does the guide suggest?",
@@ -194,7 +239,8 @@
         "No specific amount"
       ],
       correct: 0,
-      explain: "Even shorter walks spread through the day count if you can't do 30 minutes at once."
+      explain: "Even shorter walks spread through the day count if you can't do 30 minutes at once.",
+      icon: "ti-walk", color: "accent"
     },
     {
       q: "How much weight loss can meaningfully lower diabetes risk?",
@@ -205,7 +251,8 @@
         "As little as 7% of body weight — about 15 lbs if you weigh 200"
       ],
       correct: 3,
-      explain: "Even a modest loss, around 7% of body weight, can lower your risk."
+      explain: "Even a modest loss, around 7% of body weight, can lower your risk.",
+      icon: "ti-scale", color: "success"
     },
     {
       q: "Which food swap matches the guide's advice?",
@@ -216,7 +263,8 @@
         "Processed meats over fish"
       ],
       correct: 0,
-      explain: "Fruit over dessert, water over soda/juice, and fish over processed meat are all recommended swaps."
+      explain: "Fruit over dessert, water over soda/juice, and fish over processed meat are all recommended swaps.",
+      icon: "ti-apple", color: "success"
     },
     {
       q: "Where can you check your own risk for type 2 diabetes?",
@@ -227,7 +275,8 @@
         "Only a specialist can tell you"
       ],
       correct: 1,
-      explain: "The ADA risk test at diabetes.org/risktest is a quick way to check."
+      explain: "The ADA risk test at diabetes.org/risktest is a quick way to check.",
+      icon: "ti-clipboard-check", color: "accent"
     }
   ];
 
@@ -237,6 +286,7 @@
   var scoreEl = document.getElementById('q-score');
   var bestEl = document.getElementById('q-best');
   var questionEl = document.getElementById('q-question');
+  var qIconEl = document.getElementById('q-icon');
   var optionsEl = document.getElementById('q-options');
   var feedbackEl = document.getElementById('q-feedback');
   var nextBtn = document.getElementById('q-next-btn');
@@ -263,6 +313,9 @@
     progressEl.textContent = 'Question ' + (idx + 1) + ' of ' + questions.length;
     scoreEl.textContent = 'Score ' + score;
     questionEl.textContent = item.q;
+    qIconEl.innerHTML = '<i class="ti ' + item.icon + '" aria-hidden="true"></i>';
+    qIconEl.style.background = 'var(--' + item.color + '-bg)';
+    qIconEl.style.color = 'var(--' + item.color + ')';
     feedbackEl.textContent = '';
     nextBtn.style.display = 'none';
     optionsEl.innerHTML = '';
@@ -341,11 +394,11 @@
   renderQuestion();
 
   var HABIT_LABELS = [
-    'Walked or was active today',
-    'Chose water instead of soda or juice',
-    'Ate at least one vegetable',
-    'Chose fruit over cake, pie, or cookies',
-    'Wrote down what I ate today'
+    { label: 'Walked or was active today', icon: 'ti-walk', color: 'accent' },
+    { label: 'Chose water instead of soda or juice', icon: 'ti-droplet', color: 'accent' },
+    { label: 'Ate at least one vegetable', icon: 'ti-carrot', color: 'success' },
+    { label: 'Chose fruit over cake, pie, or cookies', icon: 'ti-apple', color: 'success' },
+    { label: 'Wrote down what I ate today', icon: 'ti-notebook', color: 'warning' }
   ];
 
   function todayStr() {
@@ -385,6 +438,9 @@
 
   function saveHabitState() {
     localStorage.setItem('pdq_habit_state', JSON.stringify(habitState));
+    var history = JSON.parse(localStorage.getItem('pdq_habit_history') || '{}');
+    history[habitState.date] = habitState.done.filter(Boolean).length;
+    localStorage.setItem('pdq_habit_history', JSON.stringify(history));
     if (habitState.done.every(Boolean)) {
       var streak = parseInt(localStorage.getItem('pdq_habit_streak') || '0', 10);
       var lastCompleted = localStorage.getItem('pdq_habit_streak_date');
@@ -398,9 +454,14 @@
 
   function renderHabits() {
     habitListEl.innerHTML = '';
-    HABIT_LABELS.forEach(function(label, i) {
+    HABIT_LABELS.forEach(function(habit, i) {
       var row = document.createElement('label');
       row.className = 'habit-row';
+      var medallion = document.createElement('div');
+      medallion.className = 'medallion';
+      medallion.style.background = 'var(--' + habit.color + '-bg)';
+      medallion.style.color = 'var(--' + habit.color + ')';
+      medallion.innerHTML = '<i class="ti ' + habit.icon + '" aria-hidden="true"></i>';
       var cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.checked = habitState.done[i];
@@ -410,8 +471,9 @@
         renderHabits();
       });
       var span = document.createElement('span');
-      span.textContent = label;
+      span.textContent = habit.label;
       span.style.color = habitState.done[i] ? 'var(--text-primary)' : 'var(--text-secondary)';
+      row.appendChild(medallion);
       row.appendChild(cb);
       row.appendChild(span);
       habitListEl.appendChild(row);
@@ -425,6 +487,7 @@
     habitFlamesEl.innerHTML = flames;
     var streak = parseInt(localStorage.getItem('pdq_habit_streak') || '0', 10);
     habitStreakEl.textContent = streak > 0 ? streak + '-day streak of full days' : 'Complete all 5 to start a streak';
+    renderChart();
   }
 
   habitResetBtn.addEventListener('click', function() {
@@ -432,6 +495,60 @@
     saveHabitState();
     renderHabits();
   });
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function getHistory() {
+    var raw = localStorage.getItem('pdq_habit_history');
+    return raw ? JSON.parse(raw) : {};
+  }
+
+  var chart = null;
+  function renderChart() {
+    var history = getHistory();
+    var days = [];
+    var values = [];
+    var labels = [];
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date();
+      d.setDate(d.getDate() - i);
+      var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      days.push(key);
+      values.push(key === habitState.date ? habitState.done.filter(Boolean).length : (history[key] || 0));
+      labels.push(d.toLocaleDateString(undefined, { weekday: 'short' }));
+    }
+    var accent = cssVar('--accent');
+    var success = cssVar('--success');
+    var colors = values.map(function(v, i) { return (days[i] === habitState.date ? success : accent); });
+    var ctx = document.getElementById('habit-chart');
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = values;
+      chart.data.datasets[0].backgroundColor = colors;
+      chart.options.scales.y.ticks.color = cssVar('--text-muted');
+      chart.options.scales.x.ticks.color = cssVar('--text-muted');
+      chart.update();
+      return;
+    }
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{ data: values, backgroundColor: colors, borderRadius: 6, maxBarThickness: 28 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return c.parsed.y + ' of 5 habits'; } } } },
+        scales: {
+          y: { beginAtZero: true, max: 5, ticks: { stepSize: 1, color: cssVar('--text-muted'), font: { size: 11 } }, grid: { color: cssVar('--border') } },
+          x: { ticks: { color: cssVar('--text-muted'), font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
 
   renderHabits();
 })();
