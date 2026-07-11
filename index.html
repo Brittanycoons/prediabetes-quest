@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prediabetes quest</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface-1: #ffffff;
+    --surface-2: #f0efe9;
+    --border: #ddd9d0;
+    --text-primary: #1c1c1a;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --success: #0f6e56;
+    --success-bg: #e1f5ee;
+    --danger: #993c1d;
+    --danger-bg: #faece7;
+    --warning: #854f0b;
+    --warning-bg: #faeeda;
+    --accent: #185fa5;
+    --accent-bg: #e6f1fb;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #171715;
+      --surface-1: #232320;
+      --surface-2: #2c2c2a;
+      --border: #3a3a36;
+      --text-primary: #f1efe8;
+      --text-secondary: #b4b2a9;
+      --text-muted: #888780;
+      --success: #5dcaa5;
+      --success-bg: #04342c;
+      --danger: #f0997b;
+      --danger-bg: #4a1b0c;
+      --warning: #fac775;
+      --warning-bg: #412402;
+      --accent: #85b7eb;
+      --accent-bg: #042c53;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  header { margin-bottom: 1.5rem; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+  .subtitle { font-size: 14px; color: var(--text-secondary); margin: 0; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; }
+  .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; row-gap: 8px; }
+  .pill { font-size: 13px; font-weight: 500; background: var(--surface-2); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .muted { font-size: 13px; color: var(--text-secondary); }
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  button:hover:not(:disabled) { background: var(--surface-2); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { cursor: default; opacity: 0.85; }
+  .opt-btn { text-align: left; width: 100%; display: block; margin-bottom: 8px; }
+  .primary-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .habit-row { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 6px 0; cursor: pointer; }
+  .habit-row input { width: 18px; height: 18px; cursor: pointer; }
+  .flames { display: flex; gap: 4px; font-size: 18px; }
+  .flames i.off { color: var(--text-muted); }
+  .flames i.on { color: var(--warning); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; font-size: 15px; font-weight: 600; }
+  footer { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 2rem; }
+  footer a { color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Prediabetes quest</h1>
+    <p class="subtitle">A quick knowledge quiz and daily habit tracker, based on the ADA's prediabetes guide.</p>
+  </header>
+
+  <div class="card">
+    <div class="row">
+      <span id="q-progress" class="muted">Question 1 of 8</span>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span id="q-best" class="pill" style="background: var(--accent-bg); color: var(--accent);"></span>
+        <span id="q-score" class="pill">Score 0</span>
+      </div>
+    </div>
+
+    <div id="q-body">
+      <p id="q-question" style="font-size: 16px; font-weight: 600; margin: 0 0 1rem;"></p>
+      <div id="q-options"></div>
+      <p id="q-feedback" style="font-size: 14px; margin: 12px 0 0; min-height: 20px;"></p>
+      <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+        <button id="q-next-btn" class="primary-btn" style="display: none;">Next question <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+      </div>
+    </div>
+
+    <div id="q-results" style="display: none; text-align: center; padding: 0.5rem 0;">
+      <div id="q-badge" class="badge" style="margin-bottom: 12px;"></div>
+      <p id="q-final-score" class="muted" style="margin: 0 0 16px;"></p>
+      <button id="q-retry-btn">Retry quiz <i class="ti ti-refresh" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span class="muted">Today's healthy choices</span>
+      <span id="habit-points" class="pill">0 pts</span>
+    </div>
+    <div id="habit-list"></div>
+    <div class="row" style="margin-top: 8px; margin-bottom: 0;">
+      <div>
+        <div class="flames" id="habit-flames"></div>
+        <p id="habit-streak" class="muted" style="margin: 6px 0 0;"></p>
+      </div>
+      <button id="habit-reset-btn" style="font-size: 13px; padding: 6px 10px;">Reset today</button>
+    </div>
+  </div>
+
+  <footer>
+    Based on the American Diabetes Association's <em>Prediabetes: What is it and what can I do?</em> guide.
+    This app is for education only, not medical advice — talk to your doctor about your personal risk.
+  </footer>
+</div>
+
+<script>
+(function() {
+  var questions = [
+    {
+      q: "What exactly is prediabetes?",
+      options: [
+        "A mild form of type 1 diabetes",
+        "Blood sugar higher than normal, but not high enough to be called diabetes",
+        "A vitamin deficiency",
+        "An allergy to sugar"
+      ],
+      correct: 1,
+      explain: "Prediabetes means blood glucose is above normal but below the diabetes threshold."
+    },
+    {
+      q: "What symptoms usually warn you that you have prediabetes?",
+      options: [
+        "Frequent thirst and blurry vision",
+        "Sudden weight gain",
+        "There usually aren't any clear symptoms",
+        "Numbness in the feet"
+      ],
+      correct: 2,
+      explain: "There are no clear symptoms of prediabetes — many people have it without knowing."
+    },
+    {
+      q: "Besides type 2 diabetes, what else does prediabetes raise your risk for?",
+      options: [
+        "Broken bones",
+        "Heart disease and stroke",
+        "The common cold",
+        "Nothing else"
+      ],
+      correct: 1,
+      explain: "Prediabetes also raises your risk for heart disease and stroke."
+    },
+    {
+      q: "Which combination can help delay or prevent type 2 diabetes?",
+      options: [
+        "Only prescription medication",
+        "Avoiding all carbohydrates completely",
+        "Daily activity, weight loss if needed, and medication if your doctor prescribes it",
+        "Nothing — it's inevitable"
+      ],
+      correct: 2,
+      explain: "Activity, weight loss (if needed), and medication (if prescribed) can all help delay or prevent it."
+    },
+    {
+      q: "How much physical activity does the guide suggest?",
+      options: [
+        "Walking about 30 minutes, 5 days a week",
+        "Running a marathon monthly",
+        "10,000 push-ups a week",
+        "No specific amount"
+      ],
+      correct: 0,
+      explain: "Even shorter walks spread through the day count if you can't do 30 minutes at once."
+    },
+    {
+      q: "How much weight loss can meaningfully lower diabetes risk?",
+      options: [
+        "Only losing 50+ pounds counts",
+        "You must reach a 'normal' BMI first",
+        "Weight loss doesn't affect risk",
+        "As little as 7% of body weight — about 15 lbs if you weigh 200"
+      ],
+      correct: 3,
+      explain: "Even a modest loss, around 7% of body weight, can lower your risk."
+    },
+    {
+      q: "Which food swap matches the guide's advice?",
+      options: [
+        "Fruit instead of cake, pie, or cookies",
+        "Deep-fried instead of grilled or baked",
+        "Juice instead of water",
+        "Processed meats over fish"
+      ],
+      correct: 0,
+      explain: "Fruit over dessert, water over soda/juice, and fish over processed meat are all recommended swaps."
+    },
+    {
+      q: "Where can you check your own risk for type 2 diabetes?",
+      options: [
+        "There's no way to check without lab work",
+        "diabetes.org/risktest",
+        "By guessing based on family history alone",
+        "Only a specialist can tell you"
+      ],
+      correct: 1,
+      explain: "The ADA risk test at diabetes.org/risktest is a quick way to check."
+    }
+  ];
+
+  var idx = 0, score = 0, answered = false;
+
+  var progressEl = document.getElementById('q-progress');
+  var scoreEl = document.getElementById('q-score');
+  var bestEl = document.getElementById('q-best');
+  var questionEl = document.getElementById('q-question');
+  var optionsEl = document.getElementById('q-options');
+  var feedbackEl = document.getElementById('q-feedback');
+  var nextBtn = document.getElementById('q-next-btn');
+  var bodyEl = document.getElementById('q-body');
+  var resultsEl = document.getElementById('q-results');
+  var badgeEl = document.getElementById('q-badge');
+  var finalScoreEl = document.getElementById('q-final-score');
+  var retryBtn = document.getElementById('q-retry-btn');
+
+  function getBest() {
+    return parseInt(localStorage.getItem('pdq_quiz_best') || '0', 10);
+  }
+  function setBest(v) {
+    localStorage.setItem('pdq_quiz_best', String(v));
+  }
+  function renderBest() {
+    var best = getBest();
+    bestEl.textContent = best > 0 ? 'Best ' + best + '/' + questions.length : 'No best yet';
+  }
+
+  function renderQuestion() {
+    answered = false;
+    var item = questions[idx];
+    progressEl.textContent = 'Question ' + (idx + 1) + ' of ' + questions.length;
+    scoreEl.textContent = 'Score ' + score;
+    questionEl.textContent = item.q;
+    feedbackEl.textContent = '';
+    nextBtn.style.display = 'none';
+    optionsEl.innerHTML = '';
+    item.options.forEach(function(opt, i) {
+      var btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.className = 'opt-btn';
+      btn.addEventListener('click', function() { selectAnswer(i); });
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(i) {
+    if (answered) return;
+    answered = true;
+    var item = questions[idx];
+    var buttons = optionsEl.querySelectorAll('button');
+    buttons.forEach(function(b, j) {
+      b.disabled = true;
+      if (j === item.correct) {
+        b.style.borderColor = 'var(--success)';
+        b.style.color = 'var(--success)';
+        b.style.background = 'var(--success-bg)';
+      } else if (j === i) {
+        b.style.borderColor = 'var(--danger)';
+        b.style.color = 'var(--danger)';
+        b.style.background = 'var(--danger-bg)';
+      }
+    });
+    if (i === item.correct) {
+      score++;
+      feedbackEl.style.color = 'var(--success)';
+      feedbackEl.textContent = 'Correct — ' + item.explain;
+    } else {
+      feedbackEl.style.color = 'var(--danger)';
+      feedbackEl.textContent = 'Not quite — ' + item.explain;
+    }
+    scoreEl.textContent = 'Score ' + score;
+    nextBtn.style.display = 'inline-flex';
+  }
+
+  nextBtn.addEventListener('click', function() {
+    idx++;
+    if (idx >= questions.length) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  });
+
+  function showResults() {
+    bodyEl.style.display = 'none';
+    resultsEl.style.display = 'block';
+    if (score > getBest()) setBest(score);
+    renderBest();
+    var pct = score / questions.length;
+    var tier;
+    if (pct === 1) tier = { label: 'Prevention pro', bg: 'var(--success-bg)', color: 'var(--success)', icon: 'ti-trophy' };
+    else if (pct >= 0.75) tier = { label: 'Health champion', bg: 'var(--accent-bg)', color: 'var(--accent)', icon: 'ti-medal' };
+    else if (pct >= 0.5) tier = { label: 'Getting there', bg: 'var(--warning-bg)', color: 'var(--warning)', icon: 'ti-trending-up' };
+    else tier = { label: 'Just starting', bg: 'var(--surface-2)', color: 'var(--text-secondary)', icon: 'ti-flag' };
+    badgeEl.style.background = tier.bg;
+    badgeEl.style.color = tier.color;
+    badgeEl.innerHTML = '<i class="ti ' + tier.icon + '" aria-hidden="true"></i>' + tier.label;
+    finalScoreEl.textContent = 'You scored ' + score + ' out of ' + questions.length + '.';
+  }
+
+  retryBtn.addEventListener('click', function() {
+    idx = 0; score = 0;
+    bodyEl.style.display = 'block';
+    resultsEl.style.display = 'none';
+    renderQuestion();
+  });
+
+  renderBest();
+  renderQuestion();
+
+  var HABIT_LABELS = [
+    'Walked or was active today',
+    'Chose water instead of soda or juice',
+    'Ate at least one vegetable',
+    'Chose fruit over cake, pie, or cookies',
+    'Wrote down what I ate today'
+  ];
+
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function yesterdayStr() {
+    var d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function loadHabitState() {
+    var raw = localStorage.getItem('pdq_habit_state');
+    var state = raw ? JSON.parse(raw) : null;
+    var today = todayStr();
+    if (!state || state.date !== today) {
+      var streak = parseInt(localStorage.getItem('pdq_habit_streak') || '0', 10);
+      if (state && state.date === yesterdayStr() && state.done.every(Boolean)) {
+        // streak already accounted for when yesterday completed; carry over
+      } else if (state && state.date !== yesterdayStr()) {
+        streak = 0;
+        localStorage.setItem('pdq_habit_streak', '0');
+      }
+      state = { date: today, done: HABIT_LABELS.map(function() { return false; }) };
+      localStorage.setItem('pdq_habit_state', JSON.stringify(state));
+    }
+    return state;
+  }
+
+  var habitState = loadHabitState();
+  var habitListEl = document.getElementById('habit-list');
+  var habitPointsEl = document.getElementById('habit-points');
+  var habitFlamesEl = document.getElementById('habit-flames');
+  var habitStreakEl = document.getElementById('habit-streak');
+  var habitResetBtn = document.getElementById('habit-reset-btn');
+
+  function saveHabitState() {
+    localStorage.setItem('pdq_habit_state', JSON.stringify(habitState));
+    if (habitState.done.every(Boolean)) {
+      var streak = parseInt(localStorage.getItem('pdq_habit_streak') || '0', 10);
+      var lastCompleted = localStorage.getItem('pdq_habit_streak_date');
+      if (lastCompleted !== habitState.date) {
+        streak = (lastCompleted === yesterdayStr() ? streak : 0) + 1;
+        localStorage.setItem('pdq_habit_streak', String(streak));
+        localStorage.setItem('pdq_habit_streak_date', habitState.date);
+      }
+    }
+  }
+
+  function renderHabits() {
+    habitListEl.innerHTML = '';
+    HABIT_LABELS.forEach(function(label, i) {
+      var row = document.createElement('label');
+      row.className = 'habit-row';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = habitState.done[i];
+      cb.addEventListener('change', function() {
+        habitState.done[i] = cb.checked;
+        saveHabitState();
+        renderHabits();
+      });
+      var span = document.createElement('span');
+      span.textContent = label;
+      span.style.color = habitState.done[i] ? 'var(--text-primary)' : 'var(--text-secondary)';
+      row.appendChild(cb);
+      row.appendChild(span);
+      habitListEl.appendChild(row);
+    });
+    var doneCount = habitState.done.filter(Boolean).length;
+    habitPointsEl.textContent = (doneCount * 10) + ' pts';
+    var flames = '';
+    for (var i = 0; i < HABIT_LABELS.length; i++) {
+      flames += '<i class="ti ti-flame ' + (i < doneCount ? 'on' : 'off') + '" aria-hidden="true"></i>';
+    }
+    habitFlamesEl.innerHTML = flames;
+    var streak = parseInt(localStorage.getItem('pdq_habit_streak') || '0', 10);
+    habitStreakEl.textContent = streak > 0 ? streak + '-day streak of full days' : 'Complete all 5 to start a streak';
+  }
+
+  habitResetBtn.addEventListener('click', function() {
+    habitState.done = HABIT_LABELS.map(function() { return false; });
+    saveHabitState();
+    renderHabits();
+  });
+
+  renderHabits();
+})();
+</script>
+</body>
+</html>
